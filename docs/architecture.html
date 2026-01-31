@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eBay OAuth — Architecture</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #1a1a1a; }
+        h1 { border-bottom: 2px solid #333; padding-bottom: 0.5rem; }
+        h2 { margin-top: 2rem; color: #333; }
+        h3 { color: #555; }
+        code { background: #f4f4f4; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.9em; }
+        pre { background: #f4f4f4; padding: 1rem; border-radius: 5px; overflow-x: auto; }
+        pre code { background: none; padding: 0; }
+        ul { padding-left: 1.5rem; }
+        table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+        th, td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+        th { background: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1>Architecture</h1>
+
+    <h2>Overview</h2>
+    <p><code>ebay-oauth</code> is two things:</p>
+    <ol>
+        <li><strong>A CLI tool</strong> — <code>ebay-oauth setup</code> completes the OAuth flow and obtains a refresh token</li>
+        <li><strong>A Python library</strong> — <code>EbayOAuthClient</code> provides <code>get_access_token()</code> with auto-refresh</li>
+    </ol>
+
+    <h2>OAuth Flow</h2>
+    <pre><code>Developer          CLI / Local Server          eBay
+   |                     |                       |
+   | ebay-oauth setup    |                       |
+   |────────────────────>|                       |
+   |                     | start localhost:8080   |
+   |                     |                       |
+   |  browser opens      |                       |
+   |────────────────────>|───consent URL────────>|
+   |                     |                       |
+   |                     |    user authorizes     |
+   |                     |                       |
+   |                     |<──redirect + code──────|
+   |                     |                       |
+   |                     |───exchange code───────>|
+   |                     |<──access + refresh─────|
+   |                     |                       |
+   | refresh token       |                       |
+   |<────────────────────|                       |
+   | (printed + .env)    |                       |</code></pre>
+
+    <h2>Components</h2>
+
+    <h3>ebay_oauth/auth.py — Token Management</h3>
+    <ul>
+        <li><code>EbayOAuthClient</code> class</li>
+        <li>Holds client credentials + refresh token</li>
+        <li><code>get_access_token()</code> — returns cached token or refreshes if expired</li>
+        <li>Handles eBay's auth header: <code>Basic base64(client_id:client_secret)</code></li>
+        <li>Knows sandbox vs production URLs</li>
+    </ul>
+
+    <h3>ebay_oauth/server.py — Callback Server</h3>
+    <ul>
+        <li>Minimal HTTP server (stdlib <code>http.server</code>)</li>
+        <li>One route: <code>/callback</code> — receives the authorization code</li>
+        <li>Exchanges code for tokens via eBay's token endpoint</li>
+        <li>Shuts down after receiving the token</li>
+    </ul>
+
+    <h3>ebay_oauth/cli.py — CLI Entry Point</h3>
+    <ul>
+        <li><code>setup</code> — orchestrates the full OAuth flow</li>
+        <li><code>status</code> — check if current refresh token is valid</li>
+        <li><code>refresh</code> — manually force a token refresh</li>
+    </ul>
+
+    <h3>ebay_oauth/config.py — URLs and Constants</h3>
+    <ul>
+        <li>Sandbox vs production URL mapping</li>
+        <li>OAuth endpoint paths</li>
+        <li>Default scopes</li>
+    </ul>
+
+    <h2>Deployment Modes</h2>
+    <table>
+        <tr>
+            <th>Mode</th>
+            <th>Trigger</th>
+            <th>Callback URL</th>
+            <th>Use Case</th>
+        </tr>
+        <tr>
+            <td>Local</td>
+            <td><code>ebay-oauth setup</code></td>
+            <td><code>http://localhost:8080/callback</code></td>
+            <td>eBay sandbox</td>
+        </tr>
+        <tr>
+            <td>Remote</td>
+            <td><code>ebay-oauth setup --remote</code></td>
+            <td><code>https://your-app.fly.dev/callback</code></td>
+            <td>eBay production (HTTPS required)</td>
+        </tr>
+    </table>
+
+    <h2>eBay-Specific Details</h2>
+    <table>
+        <tr><th>Detail</th><th>Sandbox</th><th>Production</th></tr>
+        <tr><td>Token endpoint</td><td><code>api.sandbox.ebay.com/identity/v1/oauth2/token</code></td><td><code>api.ebay.com/identity/v1/oauth2/token</code></td></tr>
+        <tr><td>Consent URL</td><td><code>auth.sandbox.ebay.com/oauth2/authorize</code></td><td><code>auth.ebay.com/oauth2/authorize</code></td></tr>
+        <tr><td>Access token TTL</td><td colspan="2">2 hours</td></tr>
+        <tr><td>Refresh token TTL</td><td colspan="2">18 months</td></tr>
+    </table>
+
+    <h2>Package Structure</h2>
+    <pre><code>ebay-oauth/
+├── src/
+│   └── ebay_oauth/
+│       ├── __init__.py       # exports EbayOAuthClient
+│       ├── auth.py           # token management
+│       ├── server.py         # callback server
+│       ├── cli.py            # CLI commands
+│       └── config.py         # URLs, constants
+├── tests/
+│   ├── test_auth.py
+│   ├── test_server.py
+│   └── test_cli.py
+├── docs/
+│   ├── architecture.html
+│   ├── roadmap.html
+│   └── user-story.html
+├── fly.toml
+├── pyproject.toml
+├── CLAUDE.md
+└── .gitignore</code></pre>
+</body>
+</html>
