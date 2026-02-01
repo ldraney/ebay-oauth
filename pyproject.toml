@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ebay-oauth"
+name = "ldraney-ebay-oauth"
 version = "0.1.0"
 description = "eBay OAuth 2.0 client and CLI — token acquisition, refresh, and keychain storage"
 authors = ["Lucas Draney"]
