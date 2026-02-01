@@ -41,11 +41,12 @@
     </div>
 
     <div class="phase">
-        <h2>Phase 3: PyPI Release</h2>
+        <h2>Phase 3: PyPI Release (Poetry)</h2>
         <ul>
-            <li><code>pyproject.toml</code> with proper metadata</li>
-            <li>Package as <code>ebay-oauth</code> on PyPI</li>
-            <li>CLI entry point via <code>[project.scripts]</code></li>
+            <li><code>pyproject.toml</code> with Poetry metadata and build config</li>
+            <li>Package as <code>ebay-oauth</code> on PyPI via <code>poetry publish</code></li>
+            <li>CLI entry point via <code>[tool.poetry.scripts]</code></li>
+            <li>Verify <code>pip install ebay-oauth</code> and <code>uvx ebay-oauth</code> both work</li>
             <li>Minimal README with install + usage instructions</li>
         </ul>
     </div>

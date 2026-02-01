@@ -16,7 +16,7 @@ A Python CLI tool and library for eBay OAuth 2.0 Authorization Code Grant flow. 
 ## Key Commands
 
 ```bash
-pip install ebay-oauth
+poetry add ebay-oauth    # or: pip install ebay-oauth
 ebay-oauth setup          # interactive OAuth flow
 ebay-oauth status         # check if token is valid
 ebay-oauth refresh        # force token refresh
@@ -58,10 +58,21 @@ token = client.get_access_token()  # auto-refreshes
 - **Local mode** (default): localhost callback server, works for sandbox
 - **fly.io mode** (`--remote`): for production eBay apps that require HTTPS redirect URIs
 
+## Package Management
+
+Uses **Poetry** for dependency management and publishing:
+
+```bash
+poetry install          # install deps
+poetry run pytest       # run tests
+poetry build            # build wheel + sdist
+poetry publish          # publish to PyPI
+```
+
 ## Testing
 
 ```bash
-pytest tests/
+poetry run pytest tests/
 ```
 
 Tests mock eBay API responses. No real eBay calls in unit tests.

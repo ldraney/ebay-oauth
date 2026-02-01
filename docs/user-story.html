@@ -32,7 +32,7 @@
 
     <h2>Desired Experience</h2>
     <div class="scenario">
-        <pre><code>$ pip install ebay-oauth
+        <pre><code>$ pip install ebay-oauth   # or: poetry add ebay-oauth
 $ ebay-oauth setup</code></pre>
         <p>The CLI:</p>
         <ol>
@@ -60,7 +60,7 @@ token = client.get_access_token()</code></pre>
 
     <h2>Success Criteria</h2>
     <ul>
-        <li><code>pip install ebay-oauth</code> works</li>
+        <li><code>pip install ebay-oauth</code> (or <code>poetry add ebay-oauth</code>) works</li>
         <li><code>ebay-oauth setup</code> gets a refresh token with minimal friction</li>
         <li>Token auto-refresh works transparently</li>
         <li>Works with both sandbox and production eBay environments</li>
