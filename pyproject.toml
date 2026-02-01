@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "ebay-oauth"
+version = "0.1.0"
+description = "eBay OAuth 2.0 client and CLI — token acquisition, refresh, and keychain storage"
+authors = ["Lucas Draney"]
+license = "MIT"
+readme = "CLAUDE.md"
+packages = [{include = "ebay_oauth", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+httpx = "^0.27"
+click = "^8.1"
+keyring = "^25.0"
+
+[tool.poetry.scripts]
+ebay-oauth = "ebay_oauth.cli:cli"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-httpx = "^0.30"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
